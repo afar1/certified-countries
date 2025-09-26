@@ -92,10 +92,20 @@ export function CertificationMap({
   }, [onSelectCountry]);
 
   useEffect(() => {
+    console.log('Map effect debug:', {
+      hasContainer: !!mapContainerRef.current,
+      hasMapInstance: !!mapRef.current,
+      hasToken: !!token,
+      token: token,
+      mapboxgl: typeof mapboxgl
+    });
+    
     if (!mapContainerRef.current || mapRef.current || !token) {
+      console.log('Early return - missing requirements');
       return;
     }
 
+    console.log('Setting mapbox token and creating map...');
     mapboxgl.accessToken = token;
     if (typeof mapboxgl.setTelemetryEnabled === 'function') {
       mapboxgl.setTelemetryEnabled(false);
@@ -111,6 +121,7 @@ export function CertificationMap({
       }
     }
 
+    console.log('Creating map with container:', mapContainerRef.current);
     const map = new mapboxgl.Map({
       container: mapContainerRef.current,
       style: MAP_STYLE,
@@ -119,6 +130,7 @@ export function CertificationMap({
       minZoom: 1.2,
       projection: 'mercator'
     });
+    console.log('Map created:', map);
 
     map.addControl(new mapboxgl.NavigationControl({ showCompass: false }), 'bottom-right');
 
@@ -127,6 +139,7 @@ export function CertificationMap({
     });
 
     map.on('load', () => {
+      console.log('Map load event fired!');
       map.addSource(COUNTRY_SOURCE_ID, {
         type: 'vector',
         url: 'mapbox://mapbox.country-boundaries-v1'
